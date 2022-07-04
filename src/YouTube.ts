@@ -46,7 +46,9 @@ export default class YouTube {
 
             /* Download video */
             await ytdl(url, `${this.getCachePath(info.id)}.mp3`, {
-                loadInfoJson: `${YouTube.getCachePath(info.id)}.json`
+                loadInfoJson: `${YouTube.getCachePath(info.id)}.json`,
+                extractAudio: true,
+                audioFormat: 'mp3'
             });
 
             console.info(`Downloaded YouTube video ${info.id}`);

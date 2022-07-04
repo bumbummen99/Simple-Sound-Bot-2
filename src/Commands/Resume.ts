@@ -4,11 +4,11 @@ import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
 import container from "../IoC/Container";
 
-export default class Pause extends Command {
+export default class Resume extends Command {
     constructor() {
         super(
-            'pause',
-            'pause the current plöyback.'
+            'resume',
+            'Resume the current plöyback.'
         );
     }
 
@@ -19,8 +19,8 @@ export default class Pause extends Command {
 
         /* Stop the playback */
         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
-        player.pause();
+        player.unpause();
 
-        await interaction.reply('Playback paused.');
+        await interaction.reply('Playback resumed.');
     }
 }

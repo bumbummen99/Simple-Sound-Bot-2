@@ -48,7 +48,7 @@ export default class Play extends Command {
             const info = await YouTube.download(url);
 
             /* Create an audio resource for the song */
-            const resource = createAudioResource(YouTube.getCachePath(`${md5(info.id)}.mp3`), {
+            const resource = createAudioResource(`${YouTube.getCachePath(info.id)}.mp3`, {
                 inlineVolume: true, // Allow to adjust the volume on the fly
             });
 

@@ -55,6 +55,8 @@ import YouTube from './YouTube';
         }
     });
 
+    client.on('debug', console.log);
+
     /* Give a notice once we are ready */
     client.once('ready', () => {
         console.log('Ready!');
