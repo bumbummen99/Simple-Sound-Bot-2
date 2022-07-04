@@ -1,27 +1,32 @@
-import http from 'http';
-import https from 'https';
-import fs from 'fs';
+import { createWriteStream } from 'node:fs';
+import axios from 'axios';
 
 export function ucfirst(input: string) {
     return input[0].toUpperCase() + input.slice(1);
 }
 
-export function download(URL: string, dest: string): Promise<void>
+export async function download(url: string, file: string): Promise<boolean>
 {
-    return new Promise((resolve, reject) => {
-        let handler = URL.startsWith('https') ? https : http;
-
-        const file = fs.createWriteStream(dest);
-        try {
-            handler.get(URL, (response) => {
-                response.pipe(file);
-                file.once('finish', () => {
-                    file.close();
-                    resolve();
-                });
+    const writer = createWriteStream(file);
+  
+    return axios({
+      method: 'get',
+      url: url,
+      responseType: 'stream',
+    }).then(response => {  
+        return new Promise((resolve, reject) => {
+            response.data.pipe(writer);
+            let error: null|Error = null;
+            writer.on('error', err => {
+                error = err;
+                writer.close();
+                reject(err);
             });
-        } catch (e) {
-            reject(e);
-        }           
+            writer.on('close', () => {
+                if (! error) {
+                    resolve(true);
+                }
+            });
+        });
     });
-}
+  }

@@ -1,9 +1,22 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { Client, Intents } from "discord.js";
 import deployCommands from "./deploy-commands";
 import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
+import * as dotenv from 'dotenv';
+import { Commands } from "./Commands";
+import YouTube from './YouTube';
 
 (async () => {
+    dotenv.config()
+
+    fs.mkdirSync(path.resolve('bin'), { recursive: true });
+    fs.mkdirSync(path.resolve('storage/youtube'), { recursive: true });
+    fs.mkdirSync(path.resolve('storage/tts'), { recursive: true });
+
+    await YouTube.install();
+
     /* Initialize the Client */
     const client = new Client({
         intents: [
@@ -29,12 +42,16 @@ import { IoCTypes } from "./IoC/IoCTypes";
 
         const { commandName } = interaction;
 
-        if (commandName === 'ping') {
-            await interaction.reply('Pong!');
-        } else if (commandName === 'server') {
-            await interaction.reply('Server info.');
-        } else if (commandName === 'user') {
-            await interaction.reply('User info.');
+        const command = Commands.find(command => new command().command === commandName);
+
+        if (command) {
+            try {
+                await new command().exec(interaction);
+            } catch(e) {
+                console.error(e);
+
+                await interaction.reply('Sorry, something went wrong.');
+            }
         }
     });
 

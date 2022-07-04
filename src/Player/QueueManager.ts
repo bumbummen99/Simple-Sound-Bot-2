@@ -1,8 +1,10 @@
 import { AudioResource } from "@discordjs/voice";
 import { Guild, Snowflake } from "discord.js";
+import { injectable } from "inversify";
 
+@injectable()
 export default class QueueManager {
-    queues: {[key: Snowflake]: AudioResource[] };
+    queues: {[key: Snowflake]: AudioResource[] } = {};
 
     /**
      * Add a resource to the guilds queue.

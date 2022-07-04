@@ -12,11 +12,11 @@ const Queue_1 = __importDefault(require("./Queue"));
 const Stop_1 = __importDefault(require("./Stop"));
 const Summon_1 = __importDefault(require("./Summon"));
 exports.Commands = [
-    new Leave_1.default(),
-    new Pause_1.default(),
-    new Ping_1.default(),
-    new Play_1.default(),
-    new Queue_1.default(),
-    new Stop_1.default(),
-    new Summon_1.default(),
+    Leave_1.default,
+    Pause_1.default,
+    Ping_1.default,
+    Play_1.default,
+    Queue_1.default,
+    Stop_1.default,
+    Summon_1.default,
 ];

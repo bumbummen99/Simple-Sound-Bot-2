@@ -1,8 +1,10 @@
 import { joinVoiceChannel, VoiceConnection, VoiceConnectionStatus } from "@discordjs/voice";
 import { Guild, GuildChannel, Snowflake } from "discord.js";
+import { injectable } from "inversify";
 
+@injectable()
 export default class ConnectionManager {
-    clients: {[key: Snowflake]: VoiceConnection};
+    clients: {[key: Snowflake]: VoiceConnection} = {};
 
     /**
      * Join the provided channel and store the VoiceConnection internally.
@@ -19,9 +21,10 @@ export default class ConnectionManager {
             this.clients[channel.guild.id] = joinVoiceChannel({
                 channelId: channel.id,
                 guildId: channel.guild.id,
-                adapterCreator: channel.guild.voiceAdapterCreator
+                adapterCreator: channel.guild.voiceAdapterCreator,
+                selfDeaf: false, // Undeaf as default
+                selfMute: false  // Unmute as default
             });
-
 
             /* Timeout if we are not connected fast enough */
             const timeout = setTimeout(failed, 1000 * 3);
@@ -30,6 +33,7 @@ export default class ConnectionManager {
             this.clients[channel.guild.id]
             .once('error', failed)
             .once(VoiceConnectionStatus.Ready, () => {
+                console.info(`Joined channel ${channel.id} in guild ${channel.guild.id}`)
                 clearTimeout(timeout);
                 resolve(this.clients[channel.guild.id]);
             });

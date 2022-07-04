@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Container } from "inversify";
 import { IoCTypes } from "./IoCTypes";
 import ConnectionManager from "../Player/ConnectionManager";

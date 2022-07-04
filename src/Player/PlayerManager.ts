@@ -1,13 +1,15 @@
 import { AudioPlayer, AudioPlayerStatus, createAudioPlayer } from "@discordjs/voice";
 import { Guild, Snowflake } from "discord.js";
+import { injectable } from "inversify";
 import container from "../IoC/Container";
 import { IoCTypes } from "../IoC/IoCTypes";
 import ConnectionManager from "./ConnectionManager";
 import QueueManager from "./QueueManager";
 
+@injectable()
 export default class PlayerManager {
-    music: {[key: Snowflake]: AudioPlayer};
-    tts: {[key: Snowflake]: AudioPlayer};
+    music: {[key: Snowflake]: AudioPlayer} = {};
+    tts: {[key: Snowflake]: AudioPlayer} = {};
 
     get(guild: Guild, type: 'music' | 'tts' = 'music'): AudioPlayer
     {

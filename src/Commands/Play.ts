@@ -41,40 +41,47 @@ export default class Play extends Command {
             return;
         }
 
-        /* Download the video as mp3 and get the information */
-        const info = await YouTube.download(url);
+        await interaction.reply('Downloading video...');
 
-        /* Create an audio resource for the song */
-        const resource = createAudioResource(YouTube.getCachePath(`${md5(info.id)}.mp3`), {
-            inlineVolume: true, // Allow to adjust the volume on the fly
-        });
+        try {
+            /* Download the video as mp3 and get the information */
+            const info = await YouTube.download(url);
 
-        /* Replace the first queue item for the guild with the new resource */
-        container.get<QueueManager>(IoCTypes.QueueManager).replace(interaction.guild, resource);
+            /* Create an audio resource for the song */
+            const resource = createAudioResource(YouTube.getCachePath(`${md5(info.id)}.mp3`), {
+                inlineVolume: true, // Allow to adjust the volume on the fly
+            });
 
-        /* Get the bots current VoiceConnection */
-        const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
-        if (! voiceConnection){
-            return interaction.reply('The bot is not connected to any voice channel.');
+            /* Replace the first queue item for the guild with the new resource */
+            container.get<QueueManager>(IoCTypes.QueueManager).replace(interaction.guild, resource);
+
+            /* Get the bots current VoiceConnection */
+            const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
+            if (! voiceConnection){
+                return interaction.editReply('The bot is not connected to any voice channel.');
+            }
+
+            /* Subscribe the connection to the player */
+            voiceConnection.subscribe(player);
+
+            /* Play the resource */
+            player.play(resource);
+
+            /* Inform the user what is playing now */
+            await interaction.editReply({
+                embeds: [
+                    {
+                        image: {
+                            url: info.thumbnail
+                        },
+                        title: `Now playing: ${info.title}`,
+                        description: info.description,
+                    }
+                ]
+            })
+        } catch (e) {
+            await interaction.editReply('Sorry, something went wrong.');
+            throw e;
         }
-
-        /* Subscribe the connection to the player */
-        voiceConnection.subscribe(player);
-
-        /* Play the resource */
-        player.play(resource);
-
-        /* Inform the user what is playing now */
-        await interaction.reply({
-            embeds: [
-                {
-                    image: {
-                        url: info.thumbnail
-                    },
-                    title: `Now playing: ${info.title}`,
-                    description: info.description,
-                }
-            ]
-        })
     }
 }
