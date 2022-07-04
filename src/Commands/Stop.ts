@@ -26,5 +26,7 @@ export default class Stop extends Command {
         /* Remove from queue */
         const queueManager = container.get<QueueManager>(IoCTypes.QueueManager);
         queueManager.next(interaction.guild);
+
+        await interaction.editReply('Playback stopped.');
     }
 }

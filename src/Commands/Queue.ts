@@ -32,7 +32,7 @@ export default class Queue extends Command {
         const url = interaction.options.getString('url');
 
         if (! url) {
-            await interaction.reply('You have to provide an URL.');
+            await interaction.editReply('You have to provide an URL.');
             return;
         }
 
@@ -53,7 +53,7 @@ export default class Queue extends Command {
                  .queue(interaction.guild, resource);
 
         /* Inform the user what is playing now */
-        await interaction.reply({
+        await interaction.editReply({
             embeds: [
                 {
                     image: {

@@ -20,12 +20,12 @@ export default class Summon extends Command {
         /* Join the members voice channel */
         const connectionManager = container.get<ConnectionManager>(IoCTypes.ConnectionManager);
         if (! interaction.member.voice.channel) {
-            await interaction.reply('You have to be in a voice channel to do that.');
+            await interaction.editReply('You have to be in a voice channel to do that.');
             return;
         }
 
         await connectionManager.join(interaction.member.voice.channel as  GuildChannel);
 
-        interaction.reply(`Joined channel "${interaction.member.voice.channel.name}"`)
+        interaction.editReply(`Joined channel "${interaction.member.voice.channel.name}"`)
     }
 }

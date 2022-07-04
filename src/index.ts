@@ -46,6 +46,7 @@ import YouTube from './YouTube';
 
         if (command) {
             try {
+                await interaction.reply('As you demand.');
                 await new command().exec(interaction);
             } catch(e) {
                 console.error(e);
@@ -55,7 +56,9 @@ import YouTube from './YouTube';
         }
     });
 
-    client.on('debug', console.log);
+    if (process.env.DEBUG) {
+        client.on('debug', console.log);
+    }
 
     /* Give a notice once we are ready */
     client.once('ready', () => {

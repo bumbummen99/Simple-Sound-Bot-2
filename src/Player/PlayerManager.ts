@@ -19,10 +19,10 @@ export default class PlayerManager {
             player.on('stateChange', e => {
                 if (e.status === AudioPlayerStatus.Idle) {
                     /* Get next track from queue */
-                    const next = container.get<QueueManager>(IoCTypes.QueueManager).next(guild);
+                    const current = container.get<QueueManager>(IoCTypes.QueueManager).get(guild);
 
                     /* Play the next track if there is one */
-                    if (next) {
+                    if (current) {
                         /* Get the (music) player */
                         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(guild);
 
@@ -30,7 +30,7 @@ export default class PlayerManager {
                         const voiceConnection = container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(guild);
                         if (voiceConnection) {
                             voiceConnection.subscribe(player);
-                            player.play(next);
+                            player.play(current);
                         }                      
                     }
                 }

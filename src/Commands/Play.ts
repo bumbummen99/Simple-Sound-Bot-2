@@ -19,7 +19,6 @@ export default class Play extends Command {
                     type: 'string',
                     name: 'url',
                     description: 'The YouTube URL you want to play',
-                    required: true
                 }
             ]
         );
@@ -39,49 +38,46 @@ export default class Play extends Command {
             /* Nothing provided, resume playback (if there was one) */
             player.unpause()
             return;
+        } else if (! YouTube.getIdFromURL(url)) {
+            interaction.editReply(`You must provide a valid YouTube URL, "${url}" is not valid.`);
         }
 
-        await interaction.reply('Downloading video...');
+        await interaction.editReply('Downloading video...');
 
-        try {
-            /* Download the video as mp3 and get the information */
-            const info = await YouTube.download(url);
+        /* Download the video as mp3 and get the information */
+        const info = await YouTube.download(url);
 
-            /* Create an audio resource for the song */
-            const resource = createAudioResource(`${YouTube.getCachePath(info.id)}.mp3`, {
-                inlineVolume: true, // Allow to adjust the volume on the fly
-            });
+        /* Create an audio resource for the song */
+        const resource = createAudioResource(`${YouTube.getCachePath(info.id)}.mp3`, {
+            inlineVolume: true, // Allow to adjust the volume on the fly
+        });
 
-            /* Replace the first queue item for the guild with the new resource */
-            container.get<QueueManager>(IoCTypes.QueueManager).replace(interaction.guild, resource);
+        /* Replace the first queue item for the guild with the new resource */
+        container.get<QueueManager>(IoCTypes.QueueManager).replace(interaction.guild, resource);
 
-            /* Get the bots current VoiceConnection */
-            const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
-            if (! voiceConnection){
-                return interaction.editReply('The bot is not connected to any voice channel.');
-            }
-
-            /* Subscribe the connection to the player */
-            voiceConnection.subscribe(player);
-
-            /* Play the resource */
-            player.play(resource);
-
-            /* Inform the user what is playing now */
-            await interaction.editReply({
-                embeds: [
-                    {
-                        image: {
-                            url: info.thumbnail
-                        },
-                        title: `Now playing: ${info.title}`,
-                        description: info.description,
-                    }
-                ]
-            })
-        } catch (e) {
-            await interaction.editReply('Sorry, something went wrong.');
-            throw e;
+        /* Get the bots current VoiceConnection */
+        const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
+        if (! voiceConnection){
+            return interaction.editReply('The bot is not connected to any voice channel.');
         }
+
+        /* Subscribe the connection to the player */
+        voiceConnection.subscribe(player);
+
+        /* Play the resource */
+        player.play(resource);
+
+        /* Inform the user what is playing now */
+        await interaction.editReply({
+            embeds: [
+                {
+                    image: {
+                        url: info.thumbnail
+                    },
+                    title: `Now playing: ${info.title}`,
+                    description: info.description,
+                }
+            ]
+        })
     }
 }

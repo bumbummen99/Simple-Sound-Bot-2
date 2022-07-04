@@ -21,10 +21,10 @@ export default class Leave extends Command {
         if (connection) {
             await Promise.all([
                 container.get<ConnectionManager>(IoCTypes.ConnectionManager).leave(interaction.guild),
-                interaction.reply('Bye')
+                interaction.editReply('Bye')
             ]);
         }
 
-        interaction.reply('I am not in any voice channel?')
+        interaction.editReply('I am not in any voice channel?')
     }
 }

@@ -21,6 +21,6 @@ export default class Pause extends Command {
         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
         player.pause();
 
-        await interaction.reply('Playback paused.');
+        await interaction.editReply('Playback paused.');
     }
 }

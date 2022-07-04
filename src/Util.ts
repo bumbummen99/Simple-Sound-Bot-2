@@ -20,10 +20,12 @@ export async function download(url: string, file: string): Promise<boolean>
             writer.on('error', err => {
                 error = err;
                 writer.close();
+                console.log('Error writing file');
                 reject(err);
             });
             writer.on('close', () => {
                 if (! error) {
+                    console.log('Finished writing file');
                     resolve(true);
                 }
             });

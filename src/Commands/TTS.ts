@@ -13,7 +13,7 @@ import TextToSpeech from '../TextToSpeech';
 export default class TTS extends Command {
     constructor() {
         super(
-            'tts',
+            'say',
             'Read out the provided text.',
             [
                 {
@@ -40,15 +40,17 @@ export default class TTS extends Command {
         /* Download the video as mp3 and get the information */
         const path = await TextToSpeech.generate(interaction.options.getString('text'));
 
+        console.log(`Playing resource from ${path}`);
+
         /* Create an audio resource for the song */
-        const resource = createAudioResource(YouTube.getCachePath(path), {
+        const resource = createAudioResource(path, {
             inlineVolume: true, // Allow to adjust the volume on the fly
         });
 
         /* Get the VoiceConnection of the bot */
         const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
         if (! voiceConnection) {
-            return interaction.reply('The bot is not connected to any voice channel.');
+            return interaction.editReply('The bot is not connected to any voice channel.');
         }
 
         /* Subscribe the connection to the player */
@@ -58,6 +60,6 @@ export default class TTS extends Command {
         player.play(resource); 
         
         /* Inform the user that we are playing now */
-        await interaction.reply('As you demand.');
+        await interaction.editReply('As you demand.');
     }
 }

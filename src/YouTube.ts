@@ -57,11 +57,6 @@ export default class YouTube {
         }
     }
 
-    static getCachePath(id: string): string
-    {
-        return path.resolve(process.cwd() + '/storage/youtube/' + md5(id));
-    }
-
     static async install(): Promise<boolean>
     {
         /* Set the correct YOUTUBE_DL_DIR */
@@ -81,7 +76,12 @@ export default class YouTube {
         return false;
     }
 
-    private static getIdFromURL(url) {
+    static getCachePath(id: string): string
+    {
+        return path.resolve(process.cwd() + '/storage/youtube/' + md5(id));
+    }
+
+    public static getIdFromURL(url) {
         if (url != undefined || url != '') {
             /* Try to get the ID from the YouTube URL */
             const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|\?v=)([^#\&\?]*).*/);

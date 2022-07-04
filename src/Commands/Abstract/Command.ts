@@ -3,7 +3,6 @@ import { CacheType, Client, CommandInteraction, GuildMember } from "discord.js";
 import container from "../../IoC/Container";
 import { IoCTypes } from "../../IoC/IoCTypes";
 import { ucfirst } from "../../Util";
-import ICommand from "../Interface/ICommand";
 
 declare type Option = {
     type: 'attachment' | 'boolean' | 'channel' | 'mentionable' | 'number' | 'role' | 'string' | 'user',
@@ -12,7 +11,7 @@ declare type Option = {
     required?: boolean
 }
 
-export default abstract class Command implements ICommand {
+export default abstract class Command {
     command: string;
     description: string;
     options: Option[]

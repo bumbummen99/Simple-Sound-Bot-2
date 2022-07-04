@@ -253,9 +253,7 @@ const parse = ({ stdout }: { stdout: string }) => {
 
 function exec(url: string, flags?: YtFlags, opts?: Options<string>): ExecaChildProcess
 {
-    const arg = args(url, flags);
-    console.log(JSON.stringify(arg));
-    return execa(process.env.YOUTUBE_DL_PATH as string, arg, opts)
+    return execa(process.env.YOUTUBE_DL_PATH as string, args(url, flags), opts)
 }
 
 /**
