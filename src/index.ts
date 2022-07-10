@@ -1,6 +1,6 @@
 import { Client, Intents } from "discord.js";
 import "@lavaclient/queue/register";
-import  { Cluster, Node } from 'lavaclient';
+import  { Cluster } from 'lavaclient';
 import deployCommands from "./deploy-commands";
 import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
@@ -10,8 +10,6 @@ import YouTube from './YouTube';
 
 (async () => {
     dotenv.config()
-
-    await YouTube.install();
 
     /* Initialize the Client */
     const client = new Client({
