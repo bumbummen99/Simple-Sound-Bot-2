@@ -1,0 +1,14 @@
+[Unit]
+Description=Simple Sound Bot 2
+PartOf=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/home/ssb/Simple-Sound-Bot-2
+ExecStart=/usr/local/bin/docker-compose up -f docker-compose.yml -f docker-compose.prod.yml -d --remove-orphans
+ExecStop=/usr/local/bin/docker-compose down
+
+[Install]
+WantedBy=multi-user.target

@@ -5,8 +5,7 @@ docker-compose.yml
 node_modules
 
 # Application
-bin
-storage
+ssb.service
 
 # Development
 vs.code-workspace
