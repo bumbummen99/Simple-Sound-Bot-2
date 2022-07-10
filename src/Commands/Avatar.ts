@@ -1,7 +1,7 @@
 import { CacheType, CommandInteraction } from "discord.js";
-import Command from "./Abstract/Command";
+import AppAdminCommand from "./Abstract/AppAdminCommand";
 
-export default class Avatar extends Command {
+export default class Avatar extends AppAdminCommand {
     constructor() {
         super(
             'avatar',

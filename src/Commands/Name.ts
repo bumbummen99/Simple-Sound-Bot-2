@@ -1,7 +1,7 @@
 import { CacheType, CommandInteraction, DiscordAPIError } from "discord.js";
-import Command from "./Abstract/Command";
+import AppAdminCommand from "./Abstract/AppAdminCommand";
 
-export default class Name extends Command {
+export default class Name extends AppAdminCommand {
     constructor() {
         super(
             'name',
