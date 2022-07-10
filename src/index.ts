@@ -62,7 +62,7 @@ import YouTube from './YouTube';
 
         if (command) {
             try {
-                await interaction.reply('As you demand.');
+                await interaction.deferReply();
                 await new command().exec(interaction);
             } catch(e) {
                 console.error(e);
