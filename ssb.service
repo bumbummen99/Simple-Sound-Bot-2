@@ -7,8 +7,8 @@ After=docker.service
 Type=oneshot
 RemainAfterExit=true
 WorkingDirectory=/home/ssb/Simple-Sound-Bot-2
-ExecStart=/usr/local/bin/docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
-ExecStop=/usr/local/bin/docker compose down
+ExecStart=$(wich docker) compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans
+ExecStop=$(wich docker) compose down
 
 [Install]
 WantedBy=multi-user.target
