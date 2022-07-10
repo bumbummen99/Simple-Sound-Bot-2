@@ -49,12 +49,18 @@ export default class Player
             } else {
                 /* Check if we should repeat */
                 if (this.repeat) {
+                    console.debug('Repeat is on, checking availability of track...');
+
                     /* Repoeat current track if there is one */
                     if (this.player.track && this.player.trackData) {
                         await this.player.play({
                             track: this.player.track
                         });
+                        console.debug('Repeated current track.');
+
                         return;
+                    } else {
+                        console.debug('No track available, continue as usual...');
                     }
                 }
                 
