@@ -1,7 +1,6 @@
-import { CacheType, CommandInteraction, Guild } from "discord.js";
+import { CacheType, CommandInteraction } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
-import ConnectionManager from "../Player/ConnectionManager";
 import container from "../IoC/Container";
 import PlayerManager from "../Player/PlayerManager";
 

@@ -1,14 +1,8 @@
 import { CacheType, CommandInteraction } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
-import ConnectionManager from "../Player/ConnectionManager";
-import QueueManager from "../Player/QueueManager";
-import { createAudioResource } from "@discordjs/voice";
 import PlayerManager from "../Player/PlayerManager";
 import container from "../IoC/Container";
-import YouTube from "../YouTube";
-import md5 from 'md5';
-import Player from "../Player";
 import { Cluster } from "lavaclient";
 
 export default class Play extends Command {

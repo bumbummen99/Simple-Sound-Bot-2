@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, CommandInteraction, Guild, VoiceState } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
@@ -20,6 +20,17 @@ export default class TTS extends Command {
                 }
             ]
         );
+
+        this.client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
+            /* Check if user joined our channel */
+            if (
+                newState.member?.id !== this.client.guilds.cache.get(newState.guild.id)?.me?.id &&             // Ignore the Bot itself
+                (oldState.channelId !== newState.channelId) &&                                                 // Only greet on channel changed
+                (newState.channelId ===  this.client.guilds.cache.get(newState.guild.id)?.me?.voice.channelId) // Only greet if new channel is bot channel
+            ) {
+                await this.say(newState.guild, `Hallo ${newState.member?.displayName}`);
+            }
+        })
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
@@ -27,23 +38,44 @@ export default class TTS extends Command {
             return;
         }
 
+        const text = interaction.options.getString('text');
+
+        if (! text) {
+            await interaction.editReply('You must enter a text');
+            return;
+        }
+
+        switch (await this.say(interaction.guild, text as string)) {
+            case true:
+                await interaction.editReply('As you demand.');
+            case false:
+                await interaction.editReply('There is already something playing.');
+            case null:
+                await interaction.editReply('Could not load TTS.');
+        }
+    }
+
+    private async say(guild: Guild, input: string): Promise<boolean|null>
+    {
         /* Download the video as mp3 and get the information */
-        const url = await TextToSpeech.generate(interaction.options.getString('text'));
+        const url = await TextToSpeech.generate(input);
 
         const result = await container.get<Cluster>(IoCTypes.Lavalink).rest?.loadTracks(url);
-        
+
         if (result?.tracks.length) {
             /* Get the guild player instance */
-            const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+            const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(guild);
+
+            if (player.player.playing) {
+                return false;
+            }
 
             /* Play the tts */
             player.playTTS(result.tracks[0]);
 
-            /* Inform the user that we are playing now */
-            await interaction.editReply('As you demand.');
-        } else {
-            /* Inform the user that we could not load the TTS */
-            await interaction.editReply('Could not load TTS.');
+            return true;
         }
+
+        return null;
     }
 }
