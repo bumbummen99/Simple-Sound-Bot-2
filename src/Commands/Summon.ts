@@ -3,6 +3,7 @@ import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import ConnectionManager from "../Player/ConnectionManager";
 import container from "../IoC/Container";
+import PlayerManager from "../Player/PlayerManager";
 
 export default class Summon extends Command {
     constructor() {
@@ -13,19 +14,26 @@ export default class Summon extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! interaction.member || ! (interaction.member instanceof GuildMember)) {
+        if (! interaction.guild || ! interaction.member || ! (interaction.member instanceof GuildMember) || ! await Summon.isGuildInteraction(interaction)) {
             return;
         }
         
         /* Join the members voice channel */
-        const connectionManager = container.get<ConnectionManager>(IoCTypes.ConnectionManager);
         if (! interaction.member.voice.channel) {
             await interaction.editReply('You have to be in a voice channel to do that.');
             return;
         }
 
-        await connectionManager.join(interaction.member.voice.channel as  GuildChannel);
+        /* Get the guilds player */
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
 
+        /* Join the voice channel and get the VoiceConnection */
+        const connection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).join(interaction.member.voice.channel as GuildChannel);
+
+        /* Subscribe the guilds VoiceConnection to the guilds player */
+        connection.subscribe(player.player);
+
+        /* Notify the user */
         interaction.editReply(`Joined channel "${interaction.member.voice.channel.name}"`)
     }
 }

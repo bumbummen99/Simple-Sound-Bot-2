@@ -14,18 +14,17 @@ export default class Stop extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild) {
+        if (! interaction.guild || ! await Stop.isGuildInteraction(interaction)) {
             return;
         }
         
         /* Stop the playback */
-        const playerManager = container.get<PlayerManager>(IoCTypes.PlayerManager);
-        const player = playerManager.get(interaction.guild);
-        player.stop();
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+        player.player.stop();
 
         /* Remove from queue */
-        const queueManager = container.get<QueueManager>(IoCTypes.QueueManager);
-        queueManager.next(interaction.guild);
+        //const queueManager = container.get<QueueManager>(IoCTypes.QueueManager);
+        //queueManager.next(interaction.guild);
 
         await interaction.editReply('Playback stopped.');
     }

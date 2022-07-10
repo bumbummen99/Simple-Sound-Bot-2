@@ -8,6 +8,7 @@ import PlayerManager from "../Player/PlayerManager";
 import container from "../IoC/Container";
 import YouTube from "../YouTube";
 import md5 from 'md5';
+import Player from "../Player";
 
 export default class Play extends Command {
     constructor() {
@@ -25,7 +26,7 @@ export default class Play extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild) {
+        if (! interaction.guild || ! await Play.isGuildInteraction(interaction)) {
             return;
         }
 
@@ -36,7 +37,7 @@ export default class Play extends Command {
         /* Check if an URL was provided */
         if (! url) {
             /* Nothing provided, resume playback (if there was one) */
-            player.unpause()
+            player.player.unpause();
             return;
         } else if (! YouTube.getIdFromURL(url)) {
             interaction.editReply(`You must provide a valid YouTube URL, "${url}" is not valid.`);
@@ -48,24 +49,21 @@ export default class Play extends Command {
         const info = await YouTube.download(url);
 
         /* Create an audio resource for the song */
-        const resource = createAudioResource(`${YouTube.getCachePath(info.id)}.mp3`, {
-            inlineVolume: true, // Allow to adjust the volume on the fly
+        const resource = Player.createAudioResource({
+            file: `${YouTube.getCachePath(info.id)}.mp3`,
+            url: url,
+
+            title: info.title,
+            description: info.description,
+            thumbnail: info.thumbnail
+
         });
 
         /* Replace the first queue item for the guild with the new resource */
         container.get<QueueManager>(IoCTypes.QueueManager).replace(interaction.guild, resource);
 
-        /* Get the bots current VoiceConnection */
-        const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
-        if (! voiceConnection){
-            return interaction.editReply('The bot is not connected to any voice channel.');
-        }
-
-        /* Subscribe the connection to the player */
-        voiceConnection.subscribe(player);
-
         /* Play the resource */
-        player.play(resource);
+        player.player.play(resource);
 
         /* Inform the user what is playing now */
         await interaction.editReply({

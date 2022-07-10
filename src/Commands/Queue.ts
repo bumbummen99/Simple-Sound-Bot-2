@@ -2,10 +2,9 @@ import { CacheType, CommandInteraction } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import QueueManager from "../Player/QueueManager";
-import { createAudioResource } from "@discordjs/voice";
 import container from "../IoC/Container";
 import YouTube from "../YouTube";
-import md5 from 'md5';
+import Player from "../Player";
 
 
 export default class Queue extends Command {
@@ -25,7 +24,7 @@ export default class Queue extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild) {
+        if (! interaction.guild || ! await Queue.isGuildInteraction(interaction)) {
             return;
         }
 
@@ -39,14 +38,15 @@ export default class Queue extends Command {
         /* Download the video as mp3 and get the information */
         const info = await YouTube.download(url);
 
-        /* Create an audio resource for the song */
-        const resource = createAudioResource(YouTube.getCachePath(`${md5(info.id)}.mp3`), {
-            inlineVolume: true, // Allow to adjust the volume on the fly
-        });
+         /* Create an audio resource for the song */
+        const resource = Player.createAudioResource({
+            file: `${YouTube.getCachePath(info.id)}.mp3`,
+            url: url,
 
-        /* Replace the first queue item for the guild with the new resource */
-        container.get<QueueManager>(IoCTypes.QueueManager)
-                 .replace(interaction.guild, resource);
+            title: info.title,
+            description: info.description,
+            thumbnail: info.thumbnail
+        });
 
         /* Replace the first queue item for the guild with the new resource */
         container.get<QueueManager>(IoCTypes.QueueManager)

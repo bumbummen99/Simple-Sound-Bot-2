@@ -1,44 +1,17 @@
-import { AudioPlayer, AudioPlayerStatus, createAudioPlayer } from "@discordjs/voice";
 import { Guild, Snowflake } from "discord.js";
 import { injectable } from "inversify";
-import container from "../IoC/Container";
-import { IoCTypes } from "../IoC/IoCTypes";
-import ConnectionManager from "./ConnectionManager";
-import QueueManager from "./QueueManager";
+import Player from "../Player";
 
 @injectable()
 export default class PlayerManager {
-    music: {[key: Snowflake]: AudioPlayer} = {};
-    tts: {[key: Snowflake]: AudioPlayer} = {};
+    players: {[key: Snowflake]: Player} = {};
 
-    get(guild: Guild, type: 'music' | 'tts' = 'music'): AudioPlayer
+    get(guild: Guild): Player
     {
-        if (! this[type][guild.id]) {
-            const player = createAudioPlayer();
-
-            player.on('stateChange', e => {
-                if (e.status === AudioPlayerStatus.Idle) {
-                    /* Get next track from queue */
-                    const current = container.get<QueueManager>(IoCTypes.QueueManager).get(guild);
-
-                    /* Play the next track if there is one */
-                    if (current) {
-                        /* Get the (music) player */
-                        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(guild);
-
-                        /* Subscribe the guild VoiceConnection to the player */
-                        const voiceConnection = container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(guild);
-                        if (voiceConnection) {
-                            voiceConnection.subscribe(player);
-                            player.play(current);
-                        }                      
-                    }
-                }
-            });
-
-            this[type][guild.id] = player;
+        if (! this.players[guild.id]) {
+            this.players[guild.id] = new Player(guild);
         }
 
-        return this[type][guild.id];
+        return this.players[guild.id];
     }
 }

@@ -14,6 +14,7 @@ import YouTube from './YouTube';
     fs.mkdirSync(path.resolve('bin'), { recursive: true });
     fs.mkdirSync(path.resolve('storage/youtube'), { recursive: true });
     fs.mkdirSync(path.resolve('storage/tts'), { recursive: true });
+    fs.mkdirSync(path.resolve('storage/seek'), { recursive: true });
 
     await YouTube.install();
 

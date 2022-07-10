@@ -29,7 +29,8 @@ export default class TextToSpeech {
                     SampleRate: '22050',
                     Text: input,
                     TextType: 'text',
-                    VoiceId: 'Hans'
+                    Engine: 'neural',
+                    VoiceId: 'Daniel'
                 }, function(error, url) {
                     if (error) {
                         /* Reject the Promise with the received error */

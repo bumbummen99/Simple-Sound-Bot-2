@@ -1,26 +1,27 @@
 import { CacheType, CommandInteraction } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
-import PlayerManager from "../Player/PlayerManager";
 import container from "../IoC/Container";
+import PlayerManager from "../Player/PlayerManager";
 
-export default class Resume extends Command {
+
+export default class Skip extends Command {
     constructor() {
         super(
-            'resume',
-            'Resume the current plöyback.'
+            'skip',
+            'Skip the current playback.'
         );
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Resume.isGuildInteraction(interaction)) {
+        if (! interaction.guild || ! await Skip.isGuildInteraction(interaction)) {
             return;
         }
 
-        /* Stop the playback */
         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
-        player.player.unpause();
 
-        await interaction.editReply('Playback resumed.');
+        player.skip();
+
+        await interaction.editReply('Skipped current track.');
     }
 }

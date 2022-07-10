@@ -13,7 +13,7 @@ export default class Leave extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild) {
+        if (! interaction.guild || ! await Leave.isGuildInteraction(interaction)) {
             return;
         }
         

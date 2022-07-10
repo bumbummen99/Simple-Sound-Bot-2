@@ -13,13 +13,13 @@ export default class Pause extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild) {
+        if (! interaction.guild || ! await Pause.isGuildInteraction(interaction)) {
             return;
         }
 
         /* Stop the playback */
         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
-        player.pause();
+        player.player.pause();
 
         await interaction.editReply('Playback paused.');
     }

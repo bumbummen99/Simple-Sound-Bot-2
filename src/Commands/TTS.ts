@@ -1,14 +1,10 @@
 import { CacheType, CommandInteraction } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
-import ConnectionManager from "../Player/ConnectionManager";
-import QueueManager from "../Player/QueueManager";
-import { createAudioResource, VoiceConnection } from "@discordjs/voice";
 import PlayerManager from "../Player/PlayerManager";
 import container from "../IoC/Container";
-import YouTube from "../YouTube";
-import md5 from 'md5';
 import TextToSpeech from '../TextToSpeech';
+import Player from "../Player";
 
 export default class TTS extends Command {
     constructor() {
@@ -27,37 +23,22 @@ export default class TTS extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild) {
+        if (! interaction.guild || ! await TTS.isGuildInteraction(interaction)) {
             return;
         }
-
-        /* Pause the (music) player */
-        container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild).pause();
-
-        /* Get the TTS player */
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild, 'tts');
 
         /* Download the video as mp3 and get the information */
         const path = await TextToSpeech.generate(interaction.options.getString('text'));
 
-        console.log(`Playing resource from ${path}`);
-
-        /* Create an audio resource for the song */
-        const resource = createAudioResource(path, {
-            inlineVolume: true, // Allow to adjust the volume on the fly
+        const resource = Player.createAudioResource({
+            file: path,
         });
 
-        /* Get the VoiceConnection of the bot */
-        const voiceConnection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild);
-        if (! voiceConnection) {
-            return interaction.editReply('The bot is not connected to any voice channel.');
-        }
-
-        /* Subscribe the connection to the player */
-        voiceConnection.subscribe(player);
+        /* Get the guild player instance */
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
 
         /* Start playback of the TTS resource */
-        player.play(resource); 
+        await player.playTTS(resource); 
         
         /* Inform the user that we are playing now */
         await interaction.editReply('As you demand.');
