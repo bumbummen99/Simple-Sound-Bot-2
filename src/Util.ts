@@ -31,4 +31,11 @@ export async function download(url: string, file: string): Promise<boolean>
             });
         });
     });
-  }
+}
+
+export async function sleep(ms): Promise<void>
+{
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}

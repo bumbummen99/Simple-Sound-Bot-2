@@ -4,6 +4,7 @@ import { IoCTypes } from "../IoC/IoCTypes";
 import ConnectionManager from "../Player/ConnectionManager";
 import container from "../IoC/Container";
 import PlayerManager from "../Player/PlayerManager";
+import { sleep } from "../Util";
 
 export default class Summon extends Command {
     constructor() {
@@ -30,7 +31,15 @@ export default class Summon extends Command {
         /* Join the guild player to the channel */
         player.player.connect(interaction.member.voice.channel.id)
 
+        await sleep(3000);
+
         /* Notify the user */
-        interaction.editReply(`Joined channel "${interaction.member.voice.channel.name}"`)
+        if (player.player.connected) {
+            interaction.editReply(`Joined channel "${interaction.member.voice.channel.name}"`);
+        } else {
+            interaction.editReply(`Player is not connected`);
+        }
+
+        
     }
 }

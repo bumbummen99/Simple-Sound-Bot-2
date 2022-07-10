@@ -40,14 +40,15 @@ import YouTube from './YouTube';
             }
         ],
         sendGatewayPayload: (id, payload) => {
+            console.debug('Sending payload...');
             const guild = client.guilds.cache.get(id);
             if (guild) guild.shard.send(payload);
         }
     })
-    .on('nodeConnect', console.log)
-    .on('nodeDisconnect', console.log)
-    .on('nodeDebug', console.log)
-    .on('nodeError', console.log));
+    //.on('nodeConnect', console.log)
+    //.on('nodeDisconnect', console.log)
+    .on('nodeDebug', (node, message) => console.debug(message))
+    .on('nodeError', (node, error) => console.error(error.message)));
 
     /* Bind client to the IoC */
     container.bind<Client>(IoCTypes.Client).toConstantValue(client);
@@ -79,16 +80,8 @@ import YouTube from './YouTube';
     });
 
     /* Send raw voice data to Lavalink */
-    client.on('voiceStateUpdate', (oldState, newState) => {
-        if (newState.sessionId && newState.channel && newState.member) {
-            container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate({
-                session_id: newState.sessionId,
-                channel_id: `${BigInt(newState.channel.id)}`,
-                guild_id:  `${BigInt(newState.guild.id)}`,
-                user_id: `${BigInt(newState.member.id)}`,
-            })
-        }
-    });
+    client.ws.on("VOICE_SERVER_UPDATE", data => container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate(data));
+    client.ws.on("VOICE_STATE_UPDATE", data => container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate(data));
 
     if (process.env.DEBUG) {
         client.on('debug', console.log);
