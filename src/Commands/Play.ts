@@ -50,7 +50,7 @@ export default class Play extends Command {
             /* Play the track */
             container.get<PlayerManager>(IoCTypes.PlayerManager)
                      .get(interaction.guild)
-                     .player.play(result.tracks[0]);
+                     .play(result.tracks[0]);
 
             /* Inform the user what is playing now */
             await interaction.editReply({
