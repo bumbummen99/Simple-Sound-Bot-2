@@ -1,5 +1,3 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import { Client, Intents } from "discord.js";
 import "@lavaclient/queue/register";
 import  { Cluster, Node } from 'lavaclient';
@@ -12,11 +10,6 @@ import YouTube from './YouTube';
 
 (async () => {
     dotenv.config()
-
-    fs.mkdirSync(path.resolve('bin'), { recursive: true });
-    fs.mkdirSync(path.resolve('storage/youtube'), { recursive: true });
-    fs.mkdirSync(path.resolve('storage/tts'), { recursive: true });
-    fs.mkdirSync(path.resolve('storage/seek'), { recursive: true });
 
     await YouTube.install();
 
