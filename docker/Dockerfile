@@ -9,8 +9,12 @@ FROM node:latest as environment
 RUN mkdir -p /bot
 WORKDIR /bot
 
+# Run the application as user node (1000)
+USER node
+CMD [ "npm", "run", "start" ]
+
 # Build the Docker image including the Bot source
-FROM environment as build
+FROM environment as production
 
 # Add the source
 ADD ./ /bot
@@ -22,7 +26,3 @@ USER node
 
 # Install for production
 RUN npm install --omit=dev
-
-# Run the application as user node (1000)
-USER node
-CMD [ "npm", "run", "start" ]

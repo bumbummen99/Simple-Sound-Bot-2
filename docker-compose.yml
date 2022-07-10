@@ -1,15 +1,9 @@
 version: '3'
 services:
     app:
-        build:
-            context: ./
-            dockerfile: docker/Dockerfile
-        image: simple-sound-bot
         restart: always
         extra_hosts:
             host.docker.internal: host-gateway
-        volumes:
-            - '.env:/bot/.env'
         networks:
             - simple-sound-bot
         depends_on:
