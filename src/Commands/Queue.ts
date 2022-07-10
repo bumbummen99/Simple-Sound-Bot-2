@@ -5,17 +5,19 @@ import QueueManager from "../Player/QueueManager";
 import container from "../IoC/Container";
 import YouTube from "../YouTube";
 import Player from "../Player";
+import PlayerManager from "../Player/PlayerManager";
+import { Cluster } from "lavaclient";
 
 
 export default class Queue extends Command {
     constructor() {
         super(
             'queue',
-            'Queue the provided url.',
+            'Queue the provided input.',
             [
                 {
                     type: 'string',
-                    name: 'url',
+                    name: 'input',
                     description: 'The YouTube URL you want to play',
                     required: true
                 }
@@ -28,41 +30,47 @@ export default class Queue extends Command {
             return;
         }
 
-        const url = interaction.options.getString('url');
+        const input = interaction.options.getString('input');
 
-        if (! url) {
+        if (! input) {
             await interaction.editReply('You have to provide an URL.');
             return;
         }
 
-        /* Download the video as mp3 and get the information */
-        const info = await YouTube.download(url);
+        /* Get the guilds player instance */
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
 
-         /* Create an audio resource for the song */
-        const resource = Player.createAudioResource({
-            file: `${YouTube.getCachePath(info.id)}.mp3`,
-            url: url,
+        /* Check if no search input was provided */
+        if (! input) {
+            /* Check if the guilds player is paused */
+            if (player.player.paused) {
+                /* Try to resume the guilds player */
+                player.player.resume();
+            }
+            
+            return;
+        }
 
-            title: info.title,
-            description: info.description,
-            thumbnail: info.thumbnail
-        });
+        /* Search tracks for input */
+        const result = await container.get<Cluster>(IoCTypes.Lavalink).rest?.loadTracks(input);
 
-        /* Replace the first queue item for the guild with the new resource */
-        container.get<QueueManager>(IoCTypes.QueueManager)
-                 .queue(interaction.guild, resource);
+        /* Check if Lavalink found any tracks */
+        if (result?.tracks.length) {
+            /* Play the track */
+            container.get<PlayerManager>(IoCTypes.PlayerManager)
+                    .get(interaction.guild)
+                    .player.queue.add(result.tracks[0]);
 
-        /* Inform the user what is playing now */
-        await interaction.editReply({
-            embeds: [
-                {
-                    image: {
-                        url: info.thumbnail
-                    },
-                    title: `Queued: ${info.title}`,
-                    description: info.description,
-                }
-            ]
-        })
+            /* Inform the user what is playing now */
+            await interaction.editReply({
+                embeds: [
+                    {
+                        title: `Now playing: ${result.tracks[0].info.title}`
+                    }
+                ]
+            })
+        } else {
+            await interaction.editReply('Could not find any tracks.');
+        }
     }
 }

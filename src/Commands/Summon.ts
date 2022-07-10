@@ -27,11 +27,8 @@ export default class Summon extends Command {
         /* Get the guilds player */
         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
 
-        /* Join the voice channel and get the VoiceConnection */
-        const connection = await container.get<ConnectionManager>(IoCTypes.ConnectionManager).join(interaction.member.voice.channel as GuildChannel);
-
-        /* Subscribe the guilds VoiceConnection to the guilds player */
-        connection.subscribe(player.player);
+        /* Join the guild player to the channel */
+        player.player.connect(interaction.member.voice.channel.id)
 
         /* Notify the user */
         interaction.editReply(`Joined channel "${interaction.member.voice.channel.name}"`)

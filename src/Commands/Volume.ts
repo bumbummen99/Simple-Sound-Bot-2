@@ -3,6 +3,7 @@ import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import QueueManager from "../Player/QueueManager";
 import container from "../IoC/Container";
+import PlayerManager from "../Player/PlayerManager";
 
 export default class Volume extends Command {
     constructor() {
@@ -33,7 +34,9 @@ export default class Volume extends Command {
         }
 
         /* Update the volume */
-        container.get<QueueManager>(IoCTypes.QueueManager).setVolume(interaction.guild, volume);
+        container.get<PlayerManager>(IoCTypes.PlayerManager)
+                 .get(interaction.guild)
+                 .player.setVolume(volume);
 
         /* Inform the user about the new volume */
         await interaction.editReply(`Set bot volume to ${volume}`);

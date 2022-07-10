@@ -1,0 +1,15 @@
+# Docker-Files
+docker-compose.yml
+
+# Dependencies
+node_modules
+
+# Application
+bin
+storage
+
+# Development
+vs.code-workspace
+
+# Secrets
+.env

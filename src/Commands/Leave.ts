@@ -3,6 +3,7 @@ import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import ConnectionManager from "../Player/ConnectionManager";
 import container from "../IoC/Container";
+import PlayerManager from "../Player/PlayerManager";
 
 export default class Leave extends Command {
     constructor() {
@@ -17,14 +18,11 @@ export default class Leave extends Command {
             return;
         }
         
-        const connection = container.get<ConnectionManager>(IoCTypes.ConnectionManager).get(interaction.guild)
-        if (connection) {
-            await Promise.all([
-                container.get<ConnectionManager>(IoCTypes.ConnectionManager).leave(interaction.guild),
-                interaction.editReply('Bye')
-            ]);
-        }
+        /* Disconnect the guilds player */
+        container.get<PlayerManager>(IoCTypes.PlayerManager)
+                 .get(interaction.guild)
+                 .player.disconnect();
 
-        interaction.editReply('I am not in any voice channel?')
+        interaction.editReply('Bye');
     }
 }

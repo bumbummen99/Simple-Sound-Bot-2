@@ -19,7 +19,7 @@ export default class Resume extends Command {
 
         /* Stop the playback */
         const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
-        player.player.unpause();
+        player.player.resume();
 
         await interaction.editReply('Playback resumed.');
     }

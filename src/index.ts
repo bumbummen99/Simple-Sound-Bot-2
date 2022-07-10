@@ -1,6 +1,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { Client, Intents } from "discord.js";
+import "@lavaclient/queue/register";
+import  { Cluster, Node } from 'lavaclient';
 import deployCommands from "./deploy-commands";
 import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
@@ -27,6 +29,25 @@ import YouTube from './YouTube';
             Intents.FLAGS.GUILD_VOICE_STATES // Allow the bot to talk
         ]
     });
+
+    container.bind<Cluster>(IoCTypes.Lavalink).toConstantValue(new Cluster({
+        nodes: [
+            {
+                id: 'main',
+                host: 'lavalink',
+                port: 2333,
+                password: 'youshallnotpass'
+            }
+        ],
+        sendGatewayPayload: (id, payload) => {
+            const guild = client.guilds.cache.get(id);
+            if (guild) guild.shard.send(payload);
+        }
+    })
+    .on('nodeConnect', console.log)
+    .on('nodeDisconnect', console.log)
+    .on('nodeDebug', console.log)
+    .on('nodeError', console.log));
 
     /* Bind client to the IoC */
     container.bind<Client>(IoCTypes.Client).toConstantValue(client);
@@ -57,6 +78,18 @@ import YouTube from './YouTube';
         }
     });
 
+    /* Send raw voice data to Lavalink */
+    client.on('voiceStateUpdate', (oldState, newState) => {
+        if (newState.sessionId && newState.channel && newState.member) {
+            container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate({
+                session_id: newState.sessionId,
+                channel_id: `${BigInt(newState.channel.id)}`,
+                guild_id:  `${BigInt(newState.guild.id)}`,
+                user_id: `${BigInt(newState.member.id)}`,
+            })
+        }
+    });
+
     if (process.env.DEBUG) {
         client.on('debug', console.log);
     }
@@ -64,5 +97,11 @@ import YouTube from './YouTube';
     /* Give a notice once we are ready */
     client.once('ready', () => {
         console.log('Ready!');
+
+        /* Login Lvalink or fail if no user is available */
+        if (client.user) {
+            console.debug('Connecting nodes');
+            container.get<Cluster>(IoCTypes.Lavalink).connect(client.user);
+        }
     });
 })()

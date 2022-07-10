@@ -7,6 +7,7 @@
     "@discordjs/opus": "^0.5.3",
     "@discordjs/rest": "^0.5.0",
     "@discordjs/voice": "^0.10.0",
+    "@lavaclient/queue": "^2.0.6",
     "@types/fluent-ffmpeg": "^2.1.20",
     "@types/md5": "^2.3.2",
     "aws-sdk": "^2.1167.0",
@@ -18,14 +19,13 @@
     "execa": "~5.1.0",
     "fluent-ffmpeg": "^2.1.2",
     "inversify": "^6.0.1",
+    "lavaclient": "^4.0.8",
     "libsodium-wrappers": "^0.7.10",
     "md5": "^2.3.0",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^10.8.2",
+    "typescript": "^4.7.4",
     "url-status-code": "^2.0.0",
     "ytsr": "^3.8.0"
-  },
-  "devDependencies": {
-    "typescript": "^4.7.4"
   }
 }

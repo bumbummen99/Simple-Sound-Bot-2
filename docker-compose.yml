@@ -1,0 +1,31 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+    app:
+        build:
+            context: ./
+            dockerfile: docker/Dockerfile
+        image: simple-sound-bot
+        extra_hosts:
+            host.docker.internal: host-gateway
+        volumes:
+            - '.env:/bot/.env'
+        networks:
+            - simple-sound-bot
+        depends_on:
+            - lavalink
+    lavalink:
+        image: 'fredboat/lavalink:master-v3'
+        volumes:
+            - 'ssblavalink:/data'
+            - './docker/lavalink.yml:/opt/Lavalink/application.yml'
+        networks:
+            - simple-sound-bot
+        expose:
+            - 2333 
+networks:
+    simple-sound-bot:
+        driver: bridge
+volumes:
+    ssblavalink:
+        driver: local
