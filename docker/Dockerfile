@@ -16,6 +16,8 @@ CMD [ "npm", "run", "start" ]
 # Build the Docker image including the Bot source
 FROM environment as production
 
+USER root
+
 # Add the source
 ADD ./ /bot
 
