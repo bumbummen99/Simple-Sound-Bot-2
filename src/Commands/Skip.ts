@@ -18,9 +18,9 @@ export default class Skip extends Command {
             return;
         }
 
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
-
-        player.skip();
+        container.get<PlayerManager>(IoCTypes.PlayerManager)
+                 .get(interaction.guild)
+                 .skip();
 
         await interaction.editReply('Skipped current track.');
     }

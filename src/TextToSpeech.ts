@@ -1,20 +1,9 @@
 import { Polly } from 'aws-sdk';
-import md5 from 'md5';
-import fs from'fs';
-import path from'path';
-import { download } from './Util';
 
 export default class TextToSpeech {
     static async generate(input): Promise<string> 
     {
-        const path = TextToSpeech.getCachePath(input);
-
-        /* Generate and download the TTS audio if it does not already exist */
-        if (!fs.existsSync(path)) {
-            await download(await TextToSpeech._generator(input), path);
-        }
-
-        return path;
+        return await TextToSpeech._generator(input);
     }
 
     private static _generator(input): Promise<string> {
@@ -44,9 +33,5 @@ export default class TextToSpeech {
                 reject(e.message);
             }
         });
-    }
-
-    static getCachePath(input) {
-        return path.resolve(process.cwd() + '/storage/tts/' + md5(input) + '.mp3');
     }
 }

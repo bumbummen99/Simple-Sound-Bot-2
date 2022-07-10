@@ -44,11 +44,13 @@ import YouTube from './YouTube';
             const guild = client.guilds.cache.get(id);
             if (guild) guild.shard.send(payload);
         }
-    })
-    //.on('nodeConnect', console.log)
-    //.on('nodeDisconnect', console.log)
-    .on('nodeDebug', (node, message) => console.debug(message))
-    .on('nodeError', (node, error) => console.error(error.message)));
+    }));
+
+    if (process.env.DEBUG) {
+        container.get<Cluster>(IoCTypes.Lavalink)
+        .on('nodeDebug', (node, message) => console.debug(message))
+        .on('nodeError', (node, error) => console.error(error.message))
+    }
 
     /* Bind client to the IoC */
     container.bind<Client>(IoCTypes.Client).toConstantValue(client);
@@ -97,4 +99,7 @@ import YouTube from './YouTube';
             container.get<Cluster>(IoCTypes.Lavalink).connect(client.user);
         }
     });
+
+    process.on('SIGTERM', client.destroy);
+    process.on('SIGINT', client.destroy);
 })()

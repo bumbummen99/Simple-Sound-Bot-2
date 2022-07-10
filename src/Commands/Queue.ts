@@ -56,16 +56,15 @@ export default class Queue extends Command {
 
         /* Check if Lavalink found any tracks */
         if (result?.tracks.length) {
-            /* Play the track */
-            container.get<PlayerManager>(IoCTypes.PlayerManager)
-                    .get(interaction.guild)
-                    .player.queue.add(result.tracks[0]);
+            /* Queue the track */
+            container.get<QueueManager>(IoCTypes.QueueManager)
+                    .queue(interaction.guild, result.tracks[0]);
 
             /* Inform the user what is playing now */
             await interaction.editReply({
                 embeds: [
                     {
-                        title: `Now playing: ${result.tracks[0].info.title}`
+                        title: `Queued track: ${result.tracks[0].info.title}`
                     }
                 ]
             })

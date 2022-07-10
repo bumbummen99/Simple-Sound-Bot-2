@@ -4,7 +4,7 @@ import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
 import container from "../IoC/Container";
 import TextToSpeech from '../TextToSpeech';
-import Player from "../Player";
+import { Cluster } from "lavaclient";
 
 export default class TTS extends Command {
     constructor() {
@@ -28,19 +28,22 @@ export default class TTS extends Command {
         }
 
         /* Download the video as mp3 and get the information */
-        const path = await TextToSpeech.generate(interaction.options.getString('text'));
+        const url = await TextToSpeech.generate(interaction.options.getString('text'));
 
-        const resource = Player.createAudioResource({
-            file: path,
-        });
-
-        /* Get the guild player instance */
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
-
-        /* Start playback of the TTS resource */
-        await player.playTTS(resource); 
+        const result = await container.get<Cluster>(IoCTypes.Lavalink).rest?.loadTracks(url);
         
-        /* Inform the user that we are playing now */
-        await interaction.editReply('As you demand.');
+        if (result?.tracks.length) {
+            /* Get the guild player instance */
+            const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+
+            /* Play the tts */
+            player.playTTS(result.tracks[0]);
+
+            /* Inform the user that we are playing now */
+            await interaction.editReply('As you demand.');
+        } else {
+            /* Inform the user that we could not load the TTS */
+            await interaction.editReply('Could not load TTS.');
+        }
     }
 }

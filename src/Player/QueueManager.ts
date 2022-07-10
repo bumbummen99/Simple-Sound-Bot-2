@@ -1,12 +1,10 @@
-import { AudioResource } from "@discordjs/voice";
 import { Guild, Snowflake } from "discord.js";
 import { injectable } from "inversify";
-import { Metadata } from "../Metadata";
+import { Track } from '@lavaclient/types';
 
 @injectable()
 export default class QueueManager {
-    queues: {[key: Snowflake]: AudioResource<Metadata>[] } = {};
-    volumes: {[key: Snowflake]: number} = {};
+    queues: {[key: Snowflake]: Track[] } = {};
 
     /**
      * Add a resource to the guilds queue.
@@ -14,19 +12,19 @@ export default class QueueManager {
      * @param guild
      * @param resource 
      */
-    queue(guild: Guild, resource: AudioResource<Metadata>, prepend: boolean = false): void
+    queue(guild: Guild, track: Track, prepend: boolean = false): void
     {
         /* Make sure the guilds queue is initialized */
         this._initQueue(guild);
 
-        resource.volume?.setVolume(this.volumes[guild.id] ?? 1);
-
         /* Add the resource to the end of the guilds queue */
         if (prepend) {
-            this.queues[guild.id].unshift(resource); 
+            this.queues[guild.id].unshift(track); 
         } else {
-            this.queues[guild.id].push(resource);
+            this.queues[guild.id].push(track);
         }
+
+        console.debug(`Queue length is ${this.queues[guild.id].length}`);
     }
 
     /**
@@ -35,13 +33,13 @@ export default class QueueManager {
      * @param guild
      * @param resource 
      */
-    replace(guild: Guild, resource: AudioResource<Metadata>): void
+    replace(guild: Guild, track: Track): void
     {
         this._initQueue(guild);
 
         this.queues[guild.id].shift();
 
-        this.queue(guild, resource, true);
+        this.queue(guild, track, true);
     }
 
     /**
@@ -50,16 +48,12 @@ export default class QueueManager {
      * @param guild
      * @returns 
      */
-    get(guild: Guild): AudioResource<Metadata>|null
+    get(guild: Guild): Track|null
     {
         /* Make sure the guilds queue is initialized */
         this._initQueue(guild);
 
-        console.log(`Queue lenght is ${this.queues[guild.id].length}`);
-
-        if (this.queues[guild.id][0]) {
-            console.log(`Queue resource is already ended? ${this.queues[guild.id][0].ended}`);
-        }
+        console.debug(`Queue length is ${this.queues[guild.id].length}`);
 
         return this.queues[guild.id][0] ?? null;
     }
@@ -70,10 +64,12 @@ export default class QueueManager {
      * @param guild 
      * @returns 
      */
-    next(guild: Guild): AudioResource<Metadata>|null
+    next(guild: Guild): Track|null
     {
         /* Make sure the guilds queue is initialized */
         this._initQueue(guild);
+
+        console.debug(`Queue length before shift is ${this.queues[guild.id].length}`);
 
         /* Remove the first resource from the queue */
         this.queues[guild.id].shift();
@@ -89,18 +85,7 @@ export default class QueueManager {
     clear(guild: Guild): void
     {
         this.queues[guild.id] = [];
-    }
-
-    setVolume(guild: Guild, volume: number): void
-    {
-        this._initQueue(guild);
-
-        for (const resource of this.queues[guild.id]) {
-            resource.volume?.setVolume(volume);
-        }
-
-        this.volumes[guild.id] = volume;
-    }
+    } 
 
     private _initQueue(guild: Guild): void
     {
