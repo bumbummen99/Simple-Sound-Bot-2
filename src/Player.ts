@@ -20,7 +20,12 @@ export default class Player
     /**
      * Track to resume (after tts)
      */
-    resume: Track|null = null;
+    currentTrack: Track|null = null;
+
+    /**
+     * Position to resume currentTrack at (after tts)
+     */
+    resume: number|null = null;
 
     repeat: boolean = false;
 
@@ -38,11 +43,11 @@ export default class Player
     private _onTrackEnd = async (track: null | string, reason: TrackEndReason) => {
         /* Previous track has finished */
         if (reason === TrackEndReason.Finished) {
-            if (this.resume) {
+            if (this.currentTrack && this.resume) {
                 /* Continue resume track */
-                await this.player.play(this.resume);
+                await this.play(this.currentTrack);
 
-                await this.player.seek(this.resume.info.position);
+                await this.player.seek(this.resume);
 
                 /* Null resume so that we dont resume again */
                 this.resume = null;
@@ -52,10 +57,8 @@ export default class Player
                     console.debug('Repeat is on, checking availability of track...');
 
                     /* Repoeat current track if there is one */
-                    if (this.player.track && this.player.trackData) {
-                        await this.player.play({
-                            track: this.player.track
-                        });
+                    if (this.currentTrack) {
+                        await this.play(this.currentTrack);
                         console.debug('Repeated current track.');
 
                         return;
@@ -70,6 +73,15 @@ export default class Player
         }
     }
 
+    async play(track: Track): Promise<void>
+    {
+        /* Play the track */
+        await this.player.play(track);
+        
+        /* Update the current track */
+        this.currentTrack = track;
+    }
+
     playTTS(track: Track): void
     {
         /* Check if there already is playback */
@@ -77,18 +89,13 @@ export default class Player
             /* Pause the current playback */
             this.player.pause();
 
-            /* Set resume track (if player has track set) */
-            if (this.player.track && this.player.trackData) {
-                console.log(`Track pos: ${this.player.accuratePosition ?? 0}, Track playedSince: ${this.player.playingSince}`);
-                this.resume = {
-                    track: this.player.track,
-                    info: this.player.trackData
-                };
-
-                this.resume.info.position = this.player.accuratePosition ?? 0;
+            /* Set resume position if it is available */
+            if (this.currentTrack && this.player.accuratePosition) {
+                this.resume = this.player.accuratePosition;
             }
         }
 
+        /* Play tts track directly */
         this.player.play(track);
     }
 
@@ -99,7 +106,7 @@ export default class Player
         this.player.stop();
 
         if (track) {
-            this.player.play(track);
+            this.play(track);
         } else {
             console.debug('No track queued');
         }
