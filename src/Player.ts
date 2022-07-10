@@ -7,10 +7,22 @@ import QueueManager from "./Player/QueueManager";
 
 export default class Player
 {
+    /**
+     * Guild this player is playing on
+     */
     guild: Guild
 
+    /**
+     * Instance of the player
+     */
     player: LavalinkPlayer<ClusterNode>;
+
+    /**
+     * Track to resume (after tts)
+     */
     resume: Track|null = null;
+
+    repeat: boolean = false;
 
     constructor(guild: Guild) {
         /* Create unique identifier for this player (Snowflake, Radio-URL, whatever) */
@@ -35,6 +47,17 @@ export default class Player
                 /* Null resume so that we dont resume again */
                 this.resume = null;
             } else {
+                /* Check if we should repeat */
+                if (this.repeat) {
+                    /* Repoeat current track if there is one */
+                    if (this.player.track && this.player.trackData) {
+                        await this.player.play({
+                            track: this.player.track
+                        });
+                        return;
+                    }
+                }
+                
                 /* Skip to next track in queue (If it has one) */
                 this.skip();
             }
@@ -74,5 +97,11 @@ export default class Player
         } else {
             console.debug('No track queued');
         }
+    }
+
+    toggleRepeat(repeat: boolean = !this.repeat): boolean
+    {
+        this.repeat = repeat;
+        return this.repeat;
     }
 }

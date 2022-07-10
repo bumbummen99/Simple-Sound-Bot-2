@@ -6,7 +6,6 @@ import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
 import * as dotenv from 'dotenv';
 import { Commands } from "./Commands";
-import YouTube from './YouTube';
 
 (async () => {
     dotenv.config()
@@ -55,7 +54,7 @@ import YouTube from './YouTube';
     /* React to Commands */
     client.on('interactionCreate', async interaction => {
         if (!interaction.isCommand()) return;
-
+        
         const { commandName } = interaction;
 
         const command = Commands.find(command => new command().command === commandName);
