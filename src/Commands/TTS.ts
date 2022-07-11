@@ -48,10 +48,13 @@ export default class TTS extends Command {
         switch (await this.say(interaction.guild, text as string)) {
             case true:
                 await interaction.editReply('As you demand.');
+                return;
             case false:
                 await interaction.editReply('There is already something playing.');
+                return
             case null:
                 await interaction.editReply('Could not load TTS.');
+                return
         }
     }
 
