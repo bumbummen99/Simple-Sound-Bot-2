@@ -6,9 +6,14 @@ import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
 import * as dotenv from 'dotenv';
 import { Commands } from "./Commands";
+import ErrorHandler from "./ErrorHanderl";
 
 (async () => {
-    dotenv.config()
+    /* Load .env configuration and overwrite ENV */
+    dotenv.config();
+
+    /* Initialize the ErrorHandler before everything else */
+    container.bind<ErrorHandler>(IoCTypes.ErrorHandler).toConstantValue(new ErrorHandler());
 
     /* Initialize the Client */
     const client = new Client({
@@ -20,6 +25,13 @@ import { Commands } from "./Commands";
         ]
     });
 
+    /* Write DiscordJS errors to the log */
+    client.on('error', error => container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(error));
+
+    /* Bind client to the IoC */
+    container.bind<Client>(IoCTypes.Client).toConstantValue(client);
+
+    /* Initialize and bind Lavalink Client */
     container.bind<Cluster>(IoCTypes.Lavalink).toConstantValue(new Cluster({
         nodes: [
             {
@@ -36,16 +48,14 @@ import { Commands } from "./Commands";
         }
     }));
 
+    /* Write Lavalink errors to the log */
+    container.get<Cluster>(IoCTypes.Lavalink).on('nodeError', (node, error) => container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(error))
     if (process.env.DEBUG) {
-        container.get<Cluster>(IoCTypes.Lavalink)
-        .on('nodeDebug', (node, message) => console.debug(message))
-        .on('nodeError', (node, error) => console.error(error.message))
+        /* Alos log debug if enabled */
+        container.get<Cluster>(IoCTypes.Lavalink).on('nodeDebug', (node, message) => console.debug(message))
     }
 
-    /* Bind client to the IoC */
-    container.bind<Client>(IoCTypes.Client).toConstantValue(client);
-
-    /* Login */
+    /* Login to the Discord API */
     client.login(process.env.DISCORD_TOKEN);
 
     /* Deploy the commands */
@@ -61,11 +71,16 @@ import { Commands } from "./Commands";
 
         if (command) {
             try {
+                /* Make sure the reply does not timeout */
                 await interaction.deferReply();
+
+                /* Execute the desired command */
                 await new command().execute(interaction);
             } catch(e) {
-                console.error(e);
+                /* Log the fatal error */ 
+                container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(e);
 
+                /* Notify the user of the 500 */
                 await interaction.editReply('Sorry, something went wrong.');
             }
         }
