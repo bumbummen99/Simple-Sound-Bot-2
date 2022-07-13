@@ -8,6 +8,17 @@ export default abstract class AppAdminCommand extends Command
         if (! interaction.guild || ! interaction.member || ! process.env.APP_ADMINS) {
             return false;
         }
-        return await super.check(interaction) && process.env.APP_ADMINS.split(',').includes(interaction.member.user.id);
+
+        if (! await super.check(interaction)) {
+            return false;
+        }
+
+        if (! process.env.APP_ADMINS.split(',').includes(interaction.member.user.id)) {
+            interaction.editReply('You are not allowed to use this command.');
+
+            return false;
+        }
+
+        return true;
     }
 }

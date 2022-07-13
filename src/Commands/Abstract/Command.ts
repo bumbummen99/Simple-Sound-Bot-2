@@ -51,36 +51,21 @@ export default abstract class Command {
 
     async execute(interaction: CommandInteraction<CacheType>): Promise<void>
     {
-        /* Make sure we are in a guild cannel */
-        if (interaction.inGuild() && interaction.member instanceof GuildMember) {
-            try {
-
-                if (await this.check(interaction)) {
-                    await this.exec(interaction);
-                }
-            } catch (e) {
-                /* Inform user that an error did occur */
-                await interaction.reply('Sorry, omething went wrong.');
-
-                /* Re-throw the exception */
-                throw e;
-            }
+        if (await this.check(interaction)) {
+            await this.exec(interaction);
         }
-
-        /* Only join guild channels, inform user */
-        return interaction.reply('Sorry, i can only do that a guild channel.');
     }
 
     async check(interaction: CommandInteraction<CacheType>): Promise<boolean>
     {
         /* Make sure we are in a guild cannel */
         if (interaction.inGuild() && interaction.member instanceof GuildMember) {
-            await interaction.reply('Sorry, omething went wrong.');
             return true;
         }
 
         /* Only join guild channels, inform user */
-        await interaction.reply('Sorry, i can only do that a guild channel.');
+        await interaction.editReply('Sorry, i can only do that a guild channel.');
+
         return false;
     }
 

@@ -62,11 +62,11 @@ import { Commands } from "./Commands";
         if (command) {
             try {
                 await interaction.deferReply();
-                await new command().exec(interaction);
+                await new command().execute(interaction);
             } catch(e) {
                 console.error(e);
 
-                await interaction.reply('Sorry, something went wrong.');
+                await interaction.editReply('Sorry, something went wrong.');
             }
         }
     });
