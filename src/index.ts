@@ -63,27 +63,32 @@ import ErrorHandler from "./ErrorHanderl";
 
     /* React to Commands */
     client.on('interactionCreate', async interaction => {
+        /* Make sure this is an command interaction */
         if (!interaction.isCommand()) return;
         
-        const { commandName } = interaction;
+        try {
+            /* Get the command name from the interaction object */
+            const { commandName } = interaction;
 
-        const command = Commands.find(command => new command().command === commandName);
-
-        if (command) {
-            try {
+            /* Try to find the command in the internal register */
+            const command = Commands.find(command => new command().command === commandName);
+    
+            /* Check if any command does match the request */
+            if (command) {
                 /* Make sure the reply does not timeout */
                 await interaction.deferReply();
 
                 /* Execute the desired command */
                 await new command().execute(interaction);
-            } catch(e) {
-                /* Log the fatal error */ 
-                container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(e);
-
-                /* Notify the user of the 500 */
-                await interaction.editReply('Sorry, something went wrong.');
             }
+        } catch (e) {
+            /* Log the fatal error */ 
+            container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(e);
+                
+            /* Notify the user of the 500 */
+            await interaction.editReply('Sorry, something went wrong.');
         }
+        
     });
 
     /* Send raw voice data to Lavalink */
