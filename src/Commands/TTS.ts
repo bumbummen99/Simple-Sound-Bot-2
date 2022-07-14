@@ -34,8 +34,6 @@ export default class TTS extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        throw new Error('Test');
-
         const text = interaction.options.getString('text');
 
         switch (await this.say(interaction.guild as Guild, text as string)) {
