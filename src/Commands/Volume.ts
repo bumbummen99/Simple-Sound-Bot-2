@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, CommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import QueueManager from "../Player/QueueManager";
@@ -22,20 +22,11 @@ export default class Volume extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Volume.isGuildInteraction(interaction)) {
-            return;
-        }
-
-        const volume = interaction.options.getNumber('volume');
-
-        if (! volume) {
-            await interaction.editReply('You have to provide a valid volume.');
-            return;
-        }
+        const volume = interaction.options.getNumber('volume') as number;
 
         /* Update the volume */
         container.get<PlayerManager>(IoCTypes.PlayerManager)
-                 .get(interaction.guild)
+                 .get(interaction.guild as Guild)
                  .player.setVolume(volume);
 
         /* Inform the user about the new volume */

@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, CommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
@@ -21,15 +21,11 @@ export default class Play extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Play.isGuildInteraction(interaction)) {
-            return;
-        }
-
         /* Retrieve the search input */
         const input = interaction.options.getString('input');
 
         /* Get the guilds player instance */
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild as Guild);
 
         /* Check if no search input was provided */
         if (! input) {
@@ -39,7 +35,8 @@ export default class Play extends Command {
                 player.player.resume();
             }
             
-            return;
+            await interaction.editReply('There is no playback to resume');
+            return
         }
 
         /* Search tracks for input */
@@ -49,7 +46,7 @@ export default class Play extends Command {
         if (result?.tracks.length) {
             /* Play the track */
             container.get<PlayerManager>(IoCTypes.PlayerManager)
-                     .get(interaction.guild)
+                     .get(interaction.guild as Guild)
                      .play(result.tracks[0]);
 
             /* Inform the user what is playing now */

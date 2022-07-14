@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, SlashCommandStringOption } from "@discordjs/builders";
 import { CacheType, Client, CommandInteraction, GuildMember, Interaction } from "discord.js";
+import ChannelRestrictionError from "../../Errors/ChannelRestrictionError";
 import container from "../../IoC/Container";
 import { IoCTypes } from "../../IoC/IoCTypes";
 import { ucfirst } from "../../Util";
@@ -51,34 +52,20 @@ export default abstract class Command {
 
     async execute(interaction: CommandInteraction<CacheType>): Promise<void>
     {
-        if (await this.check(interaction)) {
-            await this.exec(interaction);
-        }
+        /* Check access to the command first */
+        await this.check(interaction)
+
+        /* Ececute the command logic */
+        await this.exec(interaction);
     }
 
-    async check(interaction: CommandInteraction<CacheType>): Promise<boolean>
+    async check(interaction: CommandInteraction<CacheType>): Promise<void>
     {
-        /* Make sure we are in a guild cannel */
-        if (interaction.inGuild() && interaction.member instanceof GuildMember) {
-            return true;
+        /* Make sure that we are in a guild channel and we have a guild member */
+        if (! interaction.inGuild() || ! (interaction.member instanceof GuildMember)) {
+            throw new ChannelRestrictionError('This command can only be run in a guild channel');
         }
-
-        /* Only join guild channels, inform user */
-        await interaction.editReply('Sorry, i can only do that a guild channel.');
-
-        return false;
     }
 
     abstract exec(interaction: CommandInteraction<CacheType>): Promise<any>;
-
-    static async isGuildInteraction(interaction: CommandInteraction<CacheType>): Promise<boolean>
-    {
-        if (interaction.inGuild() || interaction.member instanceof GuildMember || interaction.guild || interaction.member) {
-            return true;
-        }
-
-        await interaction.editReply('You have to be in a guild channel to do that.');
-
-        return false;
-    }
 }

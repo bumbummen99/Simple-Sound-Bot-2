@@ -1,24 +1,21 @@
 import { CacheType, CommandInteraction } from "discord.js";
+import AuthorizationError from "../../Errors/AuthorizationError";
+import ChannelRestrictionError from "../../Errors/ChannelRestrictionError";
 import Command from "./Command";
 
 export default abstract class AppAdminCommand extends Command
 {
-    async check(interaction: CommandInteraction<CacheType>): Promise<boolean>
+    async check(interaction: CommandInteraction<CacheType>): Promise<void>
     {
-        if (! interaction.guild || ! interaction.member || ! process.env.APP_ADMINS) {
-            return false;
-        }
+        /* Always check the super first */
+        await super.check(interaction);
 
-        if (! await super.check(interaction)) {
-            return false;
+        if (! interaction.guild || ! interaction.member || ! process.env.APP_ADMINS) {
+            throw new ChannelRestrictionError('This command can only be run in a guild channel');
         }
 
         if (! process.env.APP_ADMINS.split(',').includes(interaction.member.user.id)) {
-            interaction.editReply('You are not allowed to use this command.');
-
-            return false;
+            throw new AuthorizationError('Access to this command is restricted to bot administrators.');
         }
-
-        return true;
     }
 }

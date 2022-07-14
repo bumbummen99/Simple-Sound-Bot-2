@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, CommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import QueueManager from "../Player/QueueManager";
@@ -26,19 +26,10 @@ export default class Queue extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Queue.isGuildInteraction(interaction)) {
-            return;
-        }
-
         const input = interaction.options.getString('input');
 
-        if (! input) {
-            await interaction.editReply('You have to provide an URL.');
-            return;
-        }
-
         /* Get the guilds player instance */
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild as Guild);
 
         /* Check if no search input was provided */
         if (! input) {
@@ -58,7 +49,7 @@ export default class Queue extends Command {
         if (result?.tracks.length) {
             /* Queue the track */
             container.get<QueueManager>(IoCTypes.QueueManager)
-                    .queue(interaction.guild, result.tracks[0]);
+                    .queue(interaction.guild as Guild, result.tracks[0]);
 
             /* Inform the user what is playing now */
             await interaction.editReply({
