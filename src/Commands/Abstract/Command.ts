@@ -68,15 +68,4 @@ export default abstract class Command {
     }
 
     abstract exec(interaction: CommandInteraction<CacheType>): Promise<any>;
-
-    static async isGuildInteraction(interaction: CommandInteraction<CacheType>): Promise<boolean>
-    {
-        if (interaction.inGuild() || interaction.member instanceof GuildMember || interaction.guild || interaction.member) {
-            return true;
-        }
-
-        await interaction.editReply('You have to be in a guild channel to do that.');
-
-        return false;
-    }
 }

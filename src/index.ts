@@ -6,7 +6,7 @@ import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
 import * as dotenv from 'dotenv';
 import { Commands } from "./Commands";
-import ErrorHandler from "./ErrorHanderl";
+import ErrorHandler from "./ErrorHandler";
 
 (async () => {
     /* Load .env configuration and overwrite ENV */
@@ -81,12 +81,12 @@ import ErrorHandler from "./ErrorHanderl";
                 /* Execute the desired command */
                 await new command().execute(interaction);
             }
-        } catch (e) {
+        } catch (error) {
             /* Log the fatal error */ 
-            container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(e);
+            container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(error);
                 
             /* Notify the user of the 500 */
-            await interaction.editReply('Sorry, something went wrong.');
+            await interaction.editReply(error.message ?? 'Sorry, something went wrong.');
         }
         
     });

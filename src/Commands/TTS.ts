@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, Guild, VoiceState } from "discord.js";
+import { CacheType, CommandInteraction, Guild, Interaction, VoiceState } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
@@ -34,18 +34,11 @@ export default class TTS extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await TTS.isGuildInteraction(interaction)) {
-            return;
-        }
+        throw new Error('Test');
 
         const text = interaction.options.getString('text');
 
-        if (! text) {
-            await interaction.editReply('You must enter a text');
-            return;
-        }
-
-        switch (await this.say(interaction.guild, text as string)) {
+        switch (await this.say(interaction.guild as Guild, text as string)) {
             case true:
                 await interaction.editReply('As you demand.');
                 return;

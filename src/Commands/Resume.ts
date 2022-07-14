@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, CommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
@@ -13,12 +13,8 @@ export default class Resume extends Command {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Resume.isGuildInteraction(interaction)) {
-            return;
-        }
-
         /* Stop the playback */
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild as Guild);
         player.player.resume();
 
         await interaction.editReply('Playback resumed.');
