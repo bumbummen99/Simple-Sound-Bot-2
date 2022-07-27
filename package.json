@@ -7,6 +7,7 @@
     "@discordjs/rest": "^1.0.1",
     "@discordjs/voice": "^0.11.0",
     "@lavaclient/queue": "^2.0.6",
+    "@lavaclient/types": "^2.1.0",
     "@types/fluent-ffmpeg": "^2.1.20",
     "@types/md5": "^2.3.2",
     "aws-sdk": "^2.1167.0",
