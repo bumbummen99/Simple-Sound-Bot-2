@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, CommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import container from "../IoC/Container";
@@ -12,14 +12,10 @@ export default class Leave extends Command {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Leave.isGuildInteraction(interaction)) {
-            return;
-        }
-        
+    async exec(interaction: CommandInteraction<CacheType>) {        
         /* Disconnect the guilds player */
         container.get<PlayerManager>(IoCTypes.PlayerManager)
-                 .get(interaction.guild)
+                 .get(interaction.guild as Guild)
                  .player.disconnect();
 
         interaction.editReply('Bye');

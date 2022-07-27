@@ -1,9 +1,10 @@
-import { CacheType, CommandInteraction, GuildMember } from "discord.js";
+import { CacheType, CommandInteraction, Guild, GuildMember } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import container from "../IoC/Container";
 import PlayerManager from "../Player/PlayerManager";
 import { sleep } from "../Util";
+import ChannelRestrictionError from "../Errors/ChannelRestrictionError";
 
 export default class Summon extends Command {
     constructor() {
@@ -13,32 +14,28 @@ export default class Summon extends Command {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! interaction.member || ! (interaction.member instanceof GuildMember) || ! await Summon.isGuildInteraction(interaction)) {
-            return;
-        }
-        
-        /* Join the members voice channel */
-        if (! interaction.member.voice.channel) {
-            await interaction.editReply('You have to be in a voice channel to do that.');
-            return;
+    async exec(interaction: CommandInteraction<CacheType>) {     
+        /* Get the users voice channel */
+        const channel = (interaction.member as GuildMember).voice.channel;
+
+        /* Check if the user is part of a voice channel */
+        if (! channel) {
+            throw new ChannelRestrictionError('This command can only be used in a voice channel');
         }
 
         /* Get the guilds player */
-        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild);
+        const player = container.get<PlayerManager>(IoCTypes.PlayerManager).get(interaction.guild as Guild);
 
         /* Join the guild player to the channel */
-        player.player.connect(interaction.member.voice.channel.id)
+        player.player.connect(channel.id)
 
         await sleep(3000);
 
         /* Notify the user */
         if (player.player.connected) {
-            interaction.editReply(`Joined channel "${interaction.member.voice.channel.name}"`);
+            interaction.editReply(`Joined channel "${channel.name}"`);
         } else {
             interaction.editReply(`Player is not connected`);
         }
-
-        
     }
 }

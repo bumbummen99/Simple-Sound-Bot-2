@@ -6,9 +6,14 @@ import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
 import * as dotenv from 'dotenv';
 import { Commands } from "./Commands";
+import ErrorHandler from "./ErrorHandler";
 
 (async () => {
-    dotenv.config()
+    /* Load .env configuration and overwrite ENV */
+    dotenv.config();
+
+    /* Initialize the ErrorHandler before everything else */
+    container.bind<ErrorHandler>(IoCTypes.ErrorHandler).toConstantValue(new ErrorHandler());
 
     /* Initialize the Client */
     const client = new Client({
@@ -20,6 +25,13 @@ import { Commands } from "./Commands";
         ]
     });
 
+    /* Write DiscordJS errors to the log */
+    client.on('error', error => container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(error));
+
+    /* Bind client to the IoC */
+    container.bind<Client>(IoCTypes.Client).toConstantValue(client);
+
+    /* Initialize and bind Lavalink Client */
     container.bind<Cluster>(IoCTypes.Lavalink).toConstantValue(new Cluster({
         nodes: [
             {
@@ -36,16 +48,14 @@ import { Commands } from "./Commands";
         }
     }));
 
+    /* Write Lavalink errors to the log */
+    container.get<Cluster>(IoCTypes.Lavalink).on('nodeError', (node, error) => container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(error))
     if (process.env.DEBUG) {
-        container.get<Cluster>(IoCTypes.Lavalink)
-        .on('nodeDebug', (node, message) => console.debug(message))
-        .on('nodeError', (node, error) => console.error(error.message))
+        /* Alos log debug if enabled */
+        container.get<Cluster>(IoCTypes.Lavalink).on('nodeDebug', (node, message) => console.debug(message))
     }
 
-    /* Bind client to the IoC */
-    container.bind<Client>(IoCTypes.Client).toConstantValue(client);
-
-    /* Login */
+    /* Login to the Discord API */
     client.login(process.env.DISCORD_TOKEN);
 
     /* Deploy the commands */
@@ -53,22 +63,32 @@ import { Commands } from "./Commands";
 
     /* React to Commands */
     client.on('interactionCreate', async interaction => {
+        /* Make sure this is an command interaction */
         if (!interaction.isCommand()) return;
         
-        const { commandName } = interaction;
+        try {
+            /* Get the command name from the interaction object */
+            const { commandName } = interaction;
 
-        const command = Commands.find(command => new command().command === commandName);
-
-        if (command) {
-            try {
+            /* Try to find the command in the internal register */
+            const command = Commands.find(command => new command().command === commandName);
+    
+            /* Check if any command does match the request */
+            if (command) {
+                /* Make sure the reply does not timeout */
                 await interaction.deferReply();
-                await new command().execute(interaction);
-            } catch(e) {
-                console.error(e);
 
-                await interaction.editReply('Sorry, something went wrong.');
+                /* Execute the desired command */
+                await new command().execute(interaction);
             }
+        } catch (error) {
+            /* Log the fatal error */ 
+            container.get<ErrorHandler>(IoCTypes.ErrorHandler).render(error);
+                
+            /* Notify the user of the 500 */
+            await interaction.editReply(error.message ?? 'Sorry, something went wrong.');
         }
+        
     });
 
     /* Send raw voice data to Lavalink */

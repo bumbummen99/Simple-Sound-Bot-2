@@ -18,13 +18,9 @@ export default class Avatar extends AppAdminCommand {
     }
 
     async exec(interaction: CommandInteraction<CacheType>) {
-        if (! interaction.guild || ! await Avatar.isGuildInteraction(interaction)) {
-            return;
-        }
-
         const url = interaction.options.getString('url');
 
-        interaction.guild.client.user?.setAvatar(url);
+        interaction.guild?.client.user?.setAvatar(url);
 
         await interaction.editReply('As you demand.');
     }
