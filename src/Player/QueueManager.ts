@@ -1,6 +1,6 @@
 import { Guild, Snowflake } from "discord.js";
 import { injectable } from "inversify";
-import { Track } from '@lavaclient/types/v3';
+import { Track } from '@lavaclient/types';
 
 @injectable()
 export default class QueueManager {

@@ -1,4 +1,4 @@
-import { Track, TrackEndReason } from '@lavaclient/types/v3';
+import { Track, TrackEndReason } from '@lavaclient/types';
 import container from "./IoC/Container";
 import { IoCTypes } from "./IoC/IoCTypes";
 import { Guild } from "discord.js";
