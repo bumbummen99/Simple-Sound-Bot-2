@@ -1,10 +1,8 @@
-import { CacheType, CommandInteraction, Guild } from "discord.js";
+import { ApplicationCommand, CacheType, ChatInputCommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import QueueManager from "../Player/QueueManager";
 import container from "../IoC/Container";
-import YouTube from "../YouTube";
-import Player from "../Player";
 import PlayerManager from "../Player/PlayerManager";
 import { Cluster } from "lavaclient";
 
@@ -25,7 +23,7 @@ export default class Queue extends Command {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
+    async exec(interaction: ChatInputCommandInteraction) {
         const input = interaction.options.getString('input');
 
         /* Get the guilds player instance */

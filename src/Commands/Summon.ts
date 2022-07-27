@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, Guild, GuildMember } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, Guild, GuildMember } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import container from "../IoC/Container";
@@ -14,7 +14,7 @@ export default class Summon extends Command {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {     
+    async exec(interaction: ChatInputCommandInteraction<CacheType>) {     
         /* Get the users voice channel */
         const channel = (interaction.member as GuildMember).voice.channel;
 

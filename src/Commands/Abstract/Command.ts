@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, SlashCommandStringOption } from "@discordjs/builders";
-import { CacheType, Client, CommandInteraction, GuildMember, Interaction } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, Client, CommandInteraction, GuildMember, Interaction } from "discord.js";
 import ChannelRestrictionError from "../../Errors/ChannelRestrictionError";
 import container from "../../IoC/Container";
 import { IoCTypes } from "../../IoC/IoCTypes";
@@ -50,7 +50,7 @@ export default abstract class Command {
         return builder;
     }
 
-    async execute(interaction: CommandInteraction<CacheType>): Promise<void>
+    async execute(interaction: ChatInputCommandInteraction<CacheType>): Promise<void>
     {
         /* Check access to the command first */
         await this.check(interaction)
@@ -59,7 +59,7 @@ export default abstract class Command {
         await this.exec(interaction);
     }
 
-    async check(interaction: CommandInteraction<CacheType>): Promise<void>
+    async check(interaction: ChatInputCommandInteraction<CacheType>): Promise<void>
     {
         /* Make sure that we are in a guild channel and we have a guild member */
         if (! interaction.inGuild() || ! (interaction.member instanceof GuildMember)) {
@@ -67,5 +67,5 @@ export default abstract class Command {
         }
     }
 
-    abstract exec(interaction: CommandInteraction<CacheType>): Promise<any>;
+    abstract exec(interaction: ChatInputCommandInteraction<CacheType>): Promise<any>;
 }

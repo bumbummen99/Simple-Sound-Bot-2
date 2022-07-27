@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, Guild, Interaction, VoiceState } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, Guild, VoiceState } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
@@ -24,16 +24,16 @@ export default class TTS extends Command {
         this.client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
             /* Check if user joined our channel */
             if (
-                newState.member?.id !== this.client.guilds.cache.get(newState.guild.id)?.me?.id &&             // Ignore the Bot itself
+                newState.member?.id !== this.client.guilds.cache.get(newState.guild.id)?.members.me?.id &&             // Ignore the Bot itself
                 (oldState.channelId !== newState.channelId) &&                                                 // Only greet on channel changed
-                (newState.channelId ===  this.client.guilds.cache.get(newState.guild.id)?.me?.voice.channelId) // Only greet if new channel is bot channel
+                (newState.channelId ===  this.client.guilds.cache.get(newState.guild.id)?.members.me?.voice.channelId) // Only greet if new channel is bot channel
             ) {
                 await this.say(newState.guild, `Hallo ${newState.member?.displayName}`);
             }
         })
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
+    async exec(interaction: ChatInputCommandInteraction<CacheType>) {
         const text = interaction.options.getString('text');
 
         switch (await this.say(interaction.guild as Guild, text as string)) {

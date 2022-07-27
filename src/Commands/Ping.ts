@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, GuildCacheMessage, Message } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, Message } from "discord.js";
 import Command from "./Abstract/Command";
 
 export default class Ping extends Command {
@@ -9,7 +9,7 @@ export default class Ping extends Command {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
+    async exec(interaction: ChatInputCommandInteraction<CacheType>) {
         const sent = await interaction.reply({
             content: 'Pong!',
             fetchReply: true

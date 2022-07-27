@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, DiscordAPIError } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, DiscordAPIError } from "discord.js";
 import AppAdminCommand from "./Abstract/AppAdminCommand";
 
 export default class Name extends AppAdminCommand {
@@ -17,7 +17,7 @@ export default class Name extends AppAdminCommand {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
+    async exec(interaction: ChatInputCommandInteraction<CacheType>) {
         const name = interaction.options.getString('name');
 
         if (name) {

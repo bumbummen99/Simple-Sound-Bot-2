@@ -1,11 +1,11 @@
-import { CacheType, CommandInteraction } from "discord.js";
+import { CacheType, ChatInputCommandInteraction } from "discord.js";
 import AuthorizationError from "../../Errors/AuthorizationError";
 import ChannelRestrictionError from "../../Errors/ChannelRestrictionError";
 import Command from "./Command";
 
 export default abstract class AppAdminCommand extends Command
 {
-    async check(interaction: CommandInteraction<CacheType>): Promise<void>
+    async check(interaction: ChatInputCommandInteraction<CacheType>): Promise<void>
     {
         /* Always check the super first */
         await super.check(interaction);

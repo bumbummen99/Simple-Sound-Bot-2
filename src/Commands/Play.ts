@@ -1,4 +1,4 @@
-import { CacheType, CommandInteraction, Guild } from "discord.js";
+import { CacheType, ChatInputCommandInteraction, Guild } from "discord.js";
 import Command from "./Abstract/Command";
 import { IoCTypes } from "../IoC/IoCTypes";
 import PlayerManager from "../Player/PlayerManager";
@@ -20,7 +20,7 @@ export default class Play extends Command {
         );
     }
 
-    async exec(interaction: CommandInteraction<CacheType>) {
+    async exec(interaction: ChatInputCommandInteraction<CacheType>) {
         /* Retrieve the search input */
         const input = interaction.options.getString('input');
 

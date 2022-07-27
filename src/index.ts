@@ -1,4 +1,4 @@
-import { Client, Intents } from "discord.js";
+import { ApplicationCommand, Client, GatewayDispatchEvents, GatewayIntentBits, InteractionType } from "discord.js";
 import "@lavaclient/queue/register";
 import  { Cluster } from 'lavaclient';
 import deployCommands from "./deploy-commands";
@@ -18,10 +18,10 @@ import ErrorHandler from "./ErrorHandler";
     /* Initialize the Client */
     const client = new Client({
         intents: [
-            Intents.FLAGS.GUILDS,            // Allow the bot to interact with the guild
-            Intents.FLAGS.GUILD_MEMBERS,     // Allow the bot to access members
-            Intents.FLAGS.GUILD_MESSAGES,    // Allow the bot to access messages
-            Intents.FLAGS.GUILD_VOICE_STATES // Allow the bot to talk
+            GatewayIntentBits.Guilds,            // Allow the bot to interact with the guild
+            GatewayIntentBits.GuildMembers,     // Allow the bot to access members
+            GatewayIntentBits.GuildMessages,    // Allow the bot to access messages
+            GatewayIntentBits.GuildVoiceStates // Allow the bot to talk
         ]
     });
 
@@ -64,7 +64,7 @@ import ErrorHandler from "./ErrorHandler";
     /* React to Commands */
     client.on('interactionCreate', async interaction => {
         /* Make sure this is an command interaction */
-        if (!interaction.isCommand()) return;
+        if (! interaction.isChatInputCommand()) return;
         
         try {
             /* Get the command name from the interaction object */
@@ -92,8 +92,8 @@ import ErrorHandler from "./ErrorHandler";
     });
 
     /* Send raw voice data to Lavalink */
-    client.ws.on("VOICE_SERVER_UPDATE", data => container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate(data));
-    client.ws.on("VOICE_STATE_UPDATE", data => container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate(data));
+    client.ws.on(GatewayDispatchEvents.VoiceServerUpdate, data => container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate(data));
+    client.ws.on(GatewayDispatchEvents.VoiceStateUpdate, data => container.get<Cluster>(IoCTypes.Lavalink).handleVoiceUpdate(data));
 
     if (process.env.DEBUG) {
         client.on('debug', console.log);
