@@ -10,7 +10,7 @@ export default class Ping extends Command {
     }
 
     async exec(interaction: ChatInputCommandInteraction<CacheType>) {
-        const sent = await interaction.reply({
+        const sent = await interaction.editReply({
             content: 'Pong!',
             fetchReply: true
         }) as Message;
