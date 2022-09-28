@@ -1,8 +1,7 @@
 # Docker-Files
 docker-compose.yml
-
-# Dependencies
-node_modules
+docker-compose.override.yml
+docker-compose.prod.yml
 
 # Application
 ssb.service
